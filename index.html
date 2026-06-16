@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Free Fire Reward Claim Center</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #0d0614 0%, #170a24 100%);
+        }
+        .gaming-font {
+            font-family: 'Bangers', cursive;
+            letter-spacing: 1.5px;
+        }
+        
+        /* 🔥 लाइव क्लेम फीड का शानदार स्क्रॉलिंग एनीमेशन */
+        @keyframes tickerScroll {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-50%); }
+        }
+        .ticker-track {
+            display: flex;
+            flex-direction: column;
+            animation: tickerScroll 18s linear infinite;
+        }
+        /* माउस ले जाने पर नोटिफिकेशन रुक जाएगा ताकि असली लगे */
+        .ticker-track:hover {
+            animation-play-state: paused;
+        }
+
+        /* बटन का पॉप-अप/पल्स एनीमेशन */
+        @keyframes attentionPulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 4px 15px rgba(234,179,8,0.4); }
+            50% { transform: scale(1.06); box-shadow: 0 10px 25px rgba(234,179,8,0.8); border-color: #fff; }
+        }
+        .click-me-pulse {
+            animation: attentionPulse 1.2s infinite ease-in-out;
+        }
+        
+        /* सर्वर सिंकिंग रोटेटर एनीमेशन */
+        @keyframes techSpin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .tech-loader-ring { animation: techSpin 2s infinite linear; }
+        .tech-loader-inner { animation: techSpin 1s infinite linear reverse; }
+    </style>
+</head>
+<body class="text-white min-h-screen flex flex-col justify-between items-center p-4">
+
+    <div class="w-full max-w-md bg-black/80 border border-yellow-500/30 rounded-t-xl h-12 overflow-hidden relative flex items-center">
+        <span class="absolute left-2 z-10 bg-red-600 text-[9px] font-black px-1.5 py-0.5 rounded animate-pulse shadow-[0_0_8px_#dc2626]">LIVE</span>
+        
+        <div class="w-full pl-10 pr-2 overflow-hidden h-full flex items-center">
+            <div id="ticker-container" class="ticker-track w-full text-left text-yellow-400 font-bold text-xs tracking-wide space-y-2 py-2">
+                </div>
+        </div>
+    </div>
+
+    <div class="w-full max-w-md bg-[#180f2b] rounded-b-2xl shadow-[0_0_30px_rgba(0,0,0,0.8)] border-x border-b border-purple-900/60 overflow-hidden pb-4 flex-grow flex flex-col justify-between">
+        
+        <div>
+            <div id="step-uid" class="block">
+                <div class="w-full aspect-square relative bg-gradient-to-br from-yellow-600 via-red-600 to-purple-900 border-b-4 border-yellow-500 overflow-hidden">
+                    <img id="main-banner" src="" alt="" class="w-full h-full object-cover hidden">
+                    <div id="banner-placeholder" class="w-full h-full flex flex-col justify-center items-center text-center p-6">
+                        <span class="gaming-font text-6xl text-black drop-shadow-[0_4px_0_rgba(255,255,255,1)]">FREE FIRE</span>
+                        <span class="gaming-font text-3xl text-white bg-black px-5 py-1 mt-2 rounded border border-yellow-500">REWARD HUB</span>
+                    </div>
+                </div>
+
+                <div class="p-6 space-y-5">
+                    <div class="space-y-2">
+                        <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest">Enter Player UID:</label>
+                        <input type="number" id="uid-input" placeholder="Enter Your UID here..." 
+                               class="w-full bg-[#0d0614] border-2 border-purple-800 rounded-xl px-4 py-3 text-center font-bold tracking-widest text-xl focus:outline-none focus:border-yellow-500 text-yellow-400 transition-all">
+                    </div>
+
+                    <div id="character-box" class="hidden bg-[#10071c] p-4 rounded-xl border border-green-500/40 text-center space-y-1">
+                        <p class="text-[10px] text-green-400 font-bold uppercase tracking-widest">✓ Character Synced</p>
+                        <h3 class="text-xl font-extrabold text-white">🔥 DEEPAK_BOSS_FF</h3>
+                        <p id="char-uid" class="text-xs text-gray-400 font-mono"></p>
+                    </div>
+
+                    <button id="btn-continue" onclick="verifyUID()" 
+                            class="w-full gaming-font click-me-pulse bg-gradient-to-r from-yellow-500 to-amber-500 text-black text-2xl font-bold py-3.5 px-6 rounded-xl transition-all border-2 border-transparent">
+                        CONTINUE TO CLAIM
+                    </button>
+                </div>
+            </div>
+
+            <div id="step-items" class="hidden p-4 space-y-5">
+                <div class="text-center">
+                    <h2 class="gaming-font text-3xl text-yellow-400">SELECT REWARDS</h2>
+                    <p class="text-xs text-gray-400">Tap items to add to your claim box</p>
+                </div>
+
+                <div class="grid grid-cols-4 gap-2" id="items-container">
+                    </div>
+
+                <button onclick="triggerPackingAnimation()" 
+                        class="w-full gaming-font bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-black text-2xl font-bold py-3.5 px-6 rounded-xl shadow-[0_4px_15px_rgba(16,185,129,0.4)] transition-all transform active:scale-95">
+                    CONFIRM & PACK ITEMS
+                </button>
+            </div>
+
+            <div id="step-packing" class="hidden p-8 text-center space-y-8 my-auto">
+                <h2 class="gaming-font text-3xl text-yellow-500 tracking-wider">SYNCING WITH SERVER...</h2>
+                <div class="relative w-32 h-32 mx-auto flex items-center justify-center">
+                    <div class="absolute inset-0 bg-yellow-500/10 rounded-full blur-xl animate-pulse"></div>
+                    <svg class="w-full h-full" viewBox="0 0 100 100">
+                        <circle cx="50" cy="50" r="40" stroke="#1f1635" stroke-width="4" fill="none" />
+                        <circle class="tech-loader-ring" cx="50" cy="50" r="40" stroke="#eab308" stroke-width="4" stroke-dasharray="60 120" stroke-linecap="round" fill="none" />
+                        <circle cx="50" cy="50" r="28" stroke="#1f1635" stroke-width="3" fill="none" stroke-dasharray="5 5" />
+                        <circle class="tech-loader-inner" cx="50" cy="50" r="28" stroke="#a855f7" stroke-width="3" stroke-dasharray="40 60" stroke-linecap="round" fill="none" />
+                        <circle cx="50" cy="50" r="6" fill="#eab308" />
+                    </svg>
+                </div>
+                <div class="space-y-3 max-w-xs mx-auto">
+                    <p id="packing-status" class="text-xs text-purple-300 font-bold uppercase tracking-widest">Connecting to game server data packet...</p>
+                    <div class="w-full bg-black/50 h-2 rounded-full overflow-hidden border border-purple-900/60">
+                        <div id="packing-progress" class="bg-gradient-to-r from-amber-500 via-yellow-400 to-green-400 h-full w-0 transition-all duration-300"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="step-success" class="hidden p-8 text-center space-y-6">
+                <div class="w-20 h-20 bg-green-500/20 border-2 border-green-500 rounded-full flex items-center justify-center mx-auto shadow-[0_0_20px_rgba(34,197,94,0.4)]">
+                    <span class="text-4xl text-green-400">✓</span>
+                </div>
+                <div class="space-y-1">
+                    <h2 class="gaming-font text-4xl text-yellow-400 tracking-wide drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">CONGRATULATIONS!</h2>
+                    <p class="text-lg font-bold text-white">ITEMS SENT SUCCESSFULLY!</p>
+                </div>
+                <p class="text-gray-300 text-xs max-w-xs mx-auto leading-relaxed">
+                    Your selected rewards have been securely processed. Please check your <span class="text-yellow-400 font-bold">In-Game Mailbox</span> app now! Items will arrive within 24 hours.
+                </p>
+            </div>
+        </div>
+
+        <div class="px-4 mt-auto">
+            <div class="bg-black/80 border-2 border-purple-900 rounded-xl p-4 text-center space-y-2 shadow-[0_0_20px_rgba(0,0,0,1)]">
+                <p class="text-xs font-black text-red-500 tracking-widest uppercase animate-pulse">⚠️ WARNING: EVENT EXPIRING SOON</p>
+                <div id="big-timer" class="gaming-font text-4xl text-white tracking-widest drop-shadow-[0_0_10px_#eab308]">
+                    04:59
+                </div>
+                <div class="w-full bg-neutral-900 h-1.5 rounded-full overflow-hidden">
+                    <div id="stock-bar" class="bg-yellow-500 h-full w-[91%] transition-all duration-1000"></div>
+                </div>
+                <p class="text-[10px] text-gray-400 font-bold uppercase">Only <span id="stock-count" class="text-yellow-400 font-black">47</span> / 2500 Limited Vaults Remaining</p>
+            </div>
+        </div>
+
+    </div>
+
+    <footer class="w-full max-w-md text-center py-2 text-[10px] font-bold text-gray-600 tracking-wider uppercase">
+        Designed & Powered by <span class="text-purple-500">AMP Media Networks</span>
+    </footer>
+
+    <script>
+        // 🛠️ बैनर और 12 आइटम्स कस्टमाइज़ेशन
+        const MY_CUSTOM_BANNER = ""; 
+
+        const MY_ITEMS = [
+            { name: "1000 Diamonds", img: "https://placehold.co/100x100/180f2b/eab308?text=💎" },
+            { name: "Alok Bundle", img: "https://placehold.co/100x100/180f2b/eab308?text=🔥" },
+            { name: "Evo M1014 Skin", img: "https://placehold.co/100x100/180f2b/eab308?text=🔫" },
+            { name: "Bunny Shoes", img: "https://placehold.co/100x100/180f2b/eab308?text=👟" },
+            { name: "Emote Pass", img: "https://placehold.co/100x100/180f2b/eab308?text=🏆" },
+            { name: "Black T-Shirt", img: "https://placehold.co/100x100/180f2b/eab308?text=👕" },
+            { name: "Custom Room Card", img: "https://placehold.co/100x100/180f2b/eab308?text=🟥" },
+            { name: "Cobra Fist", img: "https://placehold.co/100x100/180f2b/eab308?text=🥊" },
+            { name: "Green Draco AK", img: "https://placehold.co/100x100/180f2b/eab308?text=🐉" },
+            { name: "Criminal Mask", img: "https://placehold.co/100x100/180f2b/eab308?text=🎭" },
+            { name: "Guitar Skin", img: "https://placehold.co/100x100/180f2b/eab308?text=🎸" },
+            { name: "Evo Backpack", img: "https://placehold.co/100x100/180f2b/eab308?text=🎒" }
+        ];
+
+        if (MY_CUSTOM_BANNER.trim() !== "") {
+            const bannerImg = document.getElementById('main-banner');
+            bannerImg.src = MY_CUSTOM_BANNER;
+            bannerImg.classList.remove('hidden');
+            document.getElementById('banner-placeholder').classList.add('hidden');
+        }
+
+        const gridContainer = document.getElementById('items-container');
+        MY_ITEMS.forEach(item => {
+            gridContainer.innerHTML += `
+                <div class="item-card bg-[#0d0614] p-1.5 rounded-lg border border-purple-950 text-center cursor-pointer transition-all select-none" onclick="toggleItem(this)">
+                    <div class="aspect-square bg-purple-950/40 rounded overflow-hidden flex items-center justify-center">
+                        <img src="${item.img}" alt="${item.name}" class="w-full h-full object-cover">
+                    </div>
+                    <p class="text-[9px] mt-1 text-gray-400 font-bold truncate uppercase">${item.name}</p>
+                </div>
+            `;
+        });
+
+        // 📣 लाइव फीड जनरेटर स्क्रिप्ट (लगातार स्क्रॉल होने वाली लिस्ट)
+        const sampleNames = ["Shubham", "Deepak", "Arun", "Farhan", "Rohan", "Vikram", "Aman", "Rishi", "Ankit", "Gaurav", "Nitin", "Sameer", "Rahul", "Pankaj"];
+        const tickerContainer = document.getElementById('ticker-container');
+        
+        // लिस्ट को फुल करने के लिए 15 फेक नोटिफिकेशन तुरंत डालना
+        let tickerHTML = '';
+        for(let i=0; i<20; i++) {
+            let name = sampleNames[Math.floor(Math.random() * sampleNames.length)] + "_FF_" + Math.floor(Math.random() * 99);
+            let reward = MY_ITEMS[Math.floor(Math.random() * MY_ITEMS.length)].name;
+            tickerHTML += `<div class="h-6 flex items-center text-gray-300">🎉 <span class="text-yellow-400 font-black mx-1">${name}</span> successfully claimed <span class="text-green-400 ml-1">[ ${reward} ]</span></div>`;
+        }
+        // एनीमेशन को बिना कटे लूप करने के लिए लिस्ट को डबल कर दिया
+        tickerContainer.innerHTML = tickerHTML + tickerHTML;
+
+
+        // बाकी सारे टाइमर और वेरिफिकेशन लॉजिक पहले जैसे ही हैं
+        let totalSeconds = 300; 
+        const timerElement = document.getElementById('big-timer');
+        const stockElement = document.getElementById('stock-count');
+        const stockBar = document.getElementById('stock-bar');
+
+        const countdown = setInterval(() => {
+            if(totalSeconds <= 0) { clearInterval(countdown); timerElement.innerText = "EXPIRED"; return; }
+            totalSeconds--;
+            let mins = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
+            let secs = (totalSeconds % 60).toString().padStart(2, '0');
+            timerElement.innerText = `${mins}:${secs}`;
+            
+            if (totalSeconds % 12 === 0) {
+                let currentStock = parseInt(stockElement.innerText);
+                if (currentStock > 3) {
+                    let reduction = Math.floor(Math.random() * 2 + 1);
+                    let newStock = currentStock - reduction;
+                    stockElement.innerText = newStock;
+                    stockBar.style.width = (newStock / 2500 * 100) * 15 + '%';
+                }
+            }
+        }, 1000);
+
+        function verifyUID() {
+            const uidInput = document.getElementById('uid-input').value;
+            const characterBox = document.getElementById('character-box');
+            const btnContinue = document.getElementById('btn-continue');
+
+            if (uidInput.trim().length < 5) { alert('Please enter a valid Free Fire UID!'); return; }
+
+            if (characterBox.classList.contains('hidden')) {
+                btnContinue.innerText = 'SYNCING SERVER...';
+                btnContinue.classList.remove('click-me-pulse'); 
+                btnContinue.disabled = true;
+
+                setTimeout(() => {
+                    document.getElementById('char-uid').innerText = "UID: " + uidInput;
+                    characterBox.classList.remove('hidden');
+                    btnContinue.innerText = 'CONFIRM & PROCEED';
+                    btnContinue.disabled = false;
+                    btnContinue.classList.add('click-me-pulse'); 
+                }, 1200);
+            } else {
+                document.getElementById('step-uid').classList.add('hidden');
+                document.getElementById('step-items').classList.remove('hidden');
+            }
+        }
+
+        function toggleItem(element) {
+            element.classList.toggle('border-purple-950');
+            element.classList.toggle('border-yellow-500');
+            element.classList.toggle('bg-purple-900/20');
+            element.classList.toggle('scale-95');
+        }
+
+        function triggerPackingAnimation() {
+            document.getElementById('step-items').classList.add('hidden');
+            document.getElementById('step-packing').classList.remove('hidden');
+            
+            const progressBar = document.getElementById('packing-progress');
+            const statusText = document.getElementById('packing-status');
+            let progress = 0;
+            
+            const statusUpdates = [
+                "Establishing secure connection to UID database...",
+                "Injecting selected items into queue registry... 📦",
+                "Encrypting player data packet...",
+                "Deploying rewards bundle directly to Mailbox! 🚀"
+            ];
+
+            const progressInterval = setInterval(() => {
+                progress += 5;
+                progressBar.style.width = progress + '%';
+
+                if (progress == 25) statusText.innerText = statusUpdates[1];
+                if (progress == 50) statusText.innerText = statusUpdates[2];
+                if (progress == 75) statusText.innerText = statusUpdates[3];
+
+                if (progress >= 100) {
+                    clearInterval(progressInterval);
+                    setTimeout(() => {
+                        document.getElementById('step-packing').classList.add('hidden');
+                        document.getElementById('step-success').classList.remove('hidden');
+                    }, 500);
+                }
+            }, 150); 
+        }
+    </script>
+</body>
+</html>
